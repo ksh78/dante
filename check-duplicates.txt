@@ -1,0 +1,9 @@
+zcat *.fastq.gz | awk '{a=a" "$0}!(NR%4){print(a);a=""}' | sort | uniq -c | awk '{acc=acc+$1-1}END{print(acc)}'
+zcat *.fastq.gz | awk 'NR%4==1' | sort | uniq -c | awk '{acc=acc+$1-1}END{print(acc)}'
+zcat *.fastq.gz | wc -l | awk '{print($0/4)}'
+zcat *.fastq.gz | awk 'NR%4==1' | sort | uniq -c | awk '$1>1{print$2}' | awk -F":" '{print$3}' | sort | uniq -c
+zcat *.fastq.gz | awk -F":" 'NR%4==1{print$3}' | sort | uniq -c
+zcat *.fastq.gz | awk 'NR%4==1' | sort | uniq -c | awk '$1>1' | sort -gr | head
+zcat GFX0241468_SA_L001_R1_001.fastq.gz | grep -A 3 '@A00910:125:HHYK7DSXY:4:2678:9995:9283'
+zcat GFX0241468_SA_L001_R2_001.fastq.gz | grep -A 3 '@A00910:125:HHYK7DSXY:4:2678:9995:9283'
+samtools view GFX0241468.bam | grep 'A00910:125:HHYK7DSXY:4:2678:9995:9283'
