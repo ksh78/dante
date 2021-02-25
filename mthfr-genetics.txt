@@ -10,7 +10,7 @@
 # 4. For every row from example we search for call. When no call then default genotype. When no default then --.
 
 awk '$0!~/^#/{print($2"\t"$3)}' 23andme.txt > positions.txt
-samtools mpileup -l positions.txt 60820188479075.bam | sed 's/\$//g' | sed 's/\^.//g' | awk '$4>10{print($1,$2,toupper($5))}' | sed 's/\*//g' | awk 'NF>2' | awk '{while(index($0,"+")||index($0,"-")){match($0,/(\+|-)([0-9]+)/,a);r=a[1]a[2]".{"a[2]"}";gsub(r,"",$0)};print$0}' | grep -E '^([[:space:]]|[0-9ACGTXYM])+$' | awk '{for(i=0;++i<=length($3);){s=substr($3,i,1);m[s]+=1};b=0;c="-";for(k in m){if(m[k]>b){b=m[k];c=k}};print($1"\t"$2"\t"c""c);delete m}' > def.txt
+samtools mpileup -l positions.txt 60820188479075.bam | awk '$4>10{print($1,$2,toupper($5))}' | awk '{while(index($0,"+")||index($0,"-")){match($0,/(\+|-)([0-9]+)/,a);r=a[1]a[2]".{"a[2]"}";gsub(r,"",$0)};print$0}' | sed 's/\$//g' | sed 's/\^.//g' | sed 's/\*//g' | awk 'NF>2' | grep -E '^([[:space:]]|[0-9ACGTXYM])+$' | awk '{for(i=0;++i<=length($3);){s=substr($3,i,1);m[s]+=1};b=0;c="-";for(k in m){if(m[k]>b){b=m[k];c=k}};print($1"\t"$2"\t"c""c);delete m}' > def.txt
 zcat 60820188479075.filtered.snp.vcf.gz | awk '{if(FILENAME=="positions.txt"){m[$1"#"$2]=1}else{if($0!~/^#/&&m[$1"#"$2]){a=$4","$5;split(a,t,",");split($10,g,":");split(g[1],l,"[/|]");gg="";for(k in l){gg=gg""t[l[k]+1]};print($1"\t"$2"\t"gg)}}}' positions.txt - | sed 's/CA/AC/' | sed 's/GA/AG/' | sed 's/GC/CG/' | sed 's/TA/AT/' | sed 's/TC/CT/' | sed 's/TG/GT/' > vcf.txt
 awk 'FILENAME=="def.txt"{m[$1"#"$2]=$3} FILENAME=="vcf.txt"{m[$1"#"$2]=$3} FILENAME=="23andme.txt"{if($0~/^#/){print$0}else{s="--";if(m[$2"#"$3]){s=m[$2"#"$3]};print($1"\t"$2"\t"$3"\t"s)}}' def.txt vcf.txt 23andme.txt > result.txt
 
